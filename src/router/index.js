@@ -1,25 +1,39 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
-    component: HomeView
+    path: '/home',
+    name: 'Home',
+    component: () => import('../views/home/Home.vue'),
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/',
+    name: 'Login',
+    component: () => import('../views/login/Login.vue'),
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/login/Register.vue'),
   }
 ]
 
-const router = createRouter({
-  history: createWebHashHistory(),
+export const router = createRouter({
+  history: createWebHashHistory(), // hash模式：createWebHashHistory，history模式：createWebHistory
   routes
 })
 
+
+/**
+ * 路由守卫
+ */
+// router.beforeEach((guard)=>{
+//   brforeEach.checkAuth(guard,router);
+// })
+
+
+
+/**
+ * 输出对象
+ */
 export default router

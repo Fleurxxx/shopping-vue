@@ -1,0 +1,23 @@
+{
+  "id": "3772894",
+  "name": "shopping",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "768547",
+      "name": "password",
+      "font_class": "3701mima",
+      "unicode": "e66b",
+      "unicode_decimal": 58987
+    },
+    {
+      "icon_id": "20981768",
+      "name": "username",
+      "font_class": "username",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    }
+  ]
+}
