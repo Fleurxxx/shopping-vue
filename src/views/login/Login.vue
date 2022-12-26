@@ -27,7 +27,6 @@
                                        auto-complete="on"
                                        prefix-icon="User" clearable >
                             </el-input>
-
                         </el-form-item>
                         <el-form-item prop="password">
                             <el-input :key="passwordType"
@@ -44,7 +43,6 @@
                                       show-password>
                                 <i slot="prefix" class="iconfont icon-3701mima"></i>
                             </el-input>
-
                         </el-form-item>
                     </div>
                     <!--   验证码   -->
@@ -73,7 +71,7 @@
                             @click="submitForm">登录</el-button>
                 </el-form-item>
                 <div style="font-size:12px; float:right; margin-top: -15px;">
-                    <router-link  to="/forgetpwd">忘记密码{{"\xa0\xa0\xa0"}}</router-link>
+                    <router-link  to="/password">忘记密码{{"\xa0\xa0\xa0"}}</router-link>
                     <router-link to="/register">点击注册</router-link>
                 </div>
             </div>
@@ -85,9 +83,10 @@
     import {ref, reactive, defineComponent, onMounted, watch, unref, toRefs} from 'vue'
     import { Avatar,User, Lock } from "@element-plus/icons-vue"
     import {validUsername}  from '../../utils/validate.js'
-    import Sidentify from '../../components/identifyCode.vue'
+    import Sidentify from '../../components/IdentifyCode.vue'
     import {validateEmail, validateNull} from "@/utils/validate";
-    import api from '@/api/api'
+    import api from '@/utils/apix'
+    import {personReq} from "@/api/request";
     export default {
         name: "Login",
         components: {
@@ -95,10 +94,12 @@
             Avatar, User, Lock, Sidentify
         },
         data(){
-            const validateUsername = (rule, value, callback) => {
-                if (!validUsername(value)) {
-                    callback(new Error('请输入正确的用户名'))
-                } else {
+            const validateCode = (rule, value, callback) => {
+                console.log(value)
+                console.log(this.identifyCode)
+                if(value!==this.identifyCode){
+                    callback(new Error('验证码错误'))
+                }else{
                     callback()
                 }
             }
@@ -121,9 +122,9 @@
                 redirect: undefined,
                 passwordType: 'password',
                 loginRules: {
-                    username: [{required: true, trigger: 'blur', validator: validateEmail}],
+                    // username: [{required: true, trigger: 'blur', validator: validateEmail}],
                     password: [{required: true, trigger: 'blur', validator: validatePassword}],
-                    identifyCode:[{required:true,trigger:'blur',validator:validateNull}]
+                    identifyCode:[{required:true,trigger:'blur',validator:validateCode}]
                 },
                 identifyCode: '',
             }
@@ -134,22 +135,33 @@
                     if (!valid) {
                         return
                     } else {
-                        const params = new URLSearchParams();
-                        params.append('username', this.loginForm.username)
-                        params.append('password', this.loginForm.password)
-                        console.log(params);
-                        api.login(params).then((res) => {
+                        // const params = new URLSearchParams();
+                        // params.append('username', this.loginForm.username)
+                        // params.append('password', this.loginForm.password)
+                        // console.log(params);
+                        let data={
+                            email:this.loginForm.username,
+                            password:this.loginForm.password
+                        }
+                        let code = this.identifyCode;
+                        personReq.login(data).then((res) => {
                             console.log(res)
                             if (res.state === 200) {
                                 this.$message.success('登陆成功')
                                 // 1、将登录成功之后的token，保存到客户端的sessionStorage中
-                                window.sessionStorage.setItem('token', res.token)
+                                window.sessionStorage.setItem('token', res.data.token)
+                                window.sessionStorage.setItem('uid', res.data.uid)
+                                window.sessionStorage.setItem('username', res.data.username)
                                 // 2、项目中出现登录以外的其他api接口，必须在登陆之后访问
                                 // 3、token只在当前网站打开期间生效，所以将token保存在sessionStorage中
                                 // 4、通过编程式导航跳转到主页，路由地址为/home
                                 this.$router.push('home')
                             } else {
-                                this.$message.error('登录失败')
+                                if(res.message===null){
+                                    this.$message.error("登录失败")
+                                }else{
+                                    this.$message.error(res.message)
+                                }
                             }
                         }).catch(err => console.log(err))
                     }
@@ -161,6 +173,7 @@
                 for (let i = 0; i < 4; i++) {
                     this.identifyCode += identifyCodes[Math.floor(Math.random() * identifyCodes.length)];
                 }
+                console.log(this.identifyCode)
             }
         }
     }

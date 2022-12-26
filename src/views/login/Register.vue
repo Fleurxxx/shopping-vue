@@ -41,9 +41,15 @@
                                       auto-complete="off"
                                       v-model="registerForm.identifyCode"
                                       placeholder="请输入验证码"/>{{"\xa0\xa0\xa0"}}
-                            <el-button>获取验证码</el-button>
+                            <el-button @click="sendCode" v-bind:disabled="dis">
+                                <span class="num_green"
+                                      v-show="showNum"
+                                      v-bind:class="{num:wait_timer>0}">{{this.wait_timer + "s "}}</span>
+                                <span class="span_number"
+                                      v-bind:class="{gray_span:wait_timer>0}">{{ getCodeText() }}</span>
+                            </el-button>
                         </el-form-item>
-                        <el-button class="register-but" type="primary" @click="regForm">注册</el-button>
+                        <el-button class="register-but" type="primary" @click="regForm"> 注册 </el-button>
                     </div>
                     <div class="register-return">
                         <a style="color: #c9c9c9">已有帐号{{"\xa0\xa0\xa0"}}</a>
@@ -63,7 +69,7 @@
 <script>
     import {ref, reactive, defineComponent, onMounted, watch, unref, toRefs} from 'vue'
     import {validateEmail, validateNull} from "@/utils/validate";
-    import api from '@/api/api'
+    import {personReq} from '@/api/request'
 
     export default {
         name: "Register",
@@ -74,9 +80,6 @@
                 } else if (value.length < 6) {
                     callback(new Error('密码不能小于6位数'))
                 }else{
-                    // if (this.registerForm.password !== '') {
-                    //     this.$refs.registerForm.validateField('confirmPwd');
-                    // }
                     callback();
                 }
             };
@@ -103,31 +106,68 @@
                     password: [{required: true, trigger: ["blur", "change"], validator: validatePass1}],
                     pwdagain:[{required:true,trigger:["blur", "change"], validator:validatePass2}],
                     identifyCode:[{required:true,trigger:'blur',validator:validateNull}]
-                }
+                },
+                showNum: false,
+                wait_timer: false,
+                dis: false
             };
         },
         methods: {
+            sendCode: function(){
+                let data = {
+                    email:this.registerForm.username
+                }
+                this.showNum = true;
+                this.dis = true;
+                this.wait_timer = 60;
+                var that = this;
+                var timer_interval = setInterval(function() {
+                    if (that.wait_timer > 0) {
+                        that.wait_timer--;
+                    } else {
+                        clearInterval(timer_interval);
+                    }
+                }, 1000);
+                personReq.getCode(data).then(res => {
+                    console.log(res)
+                    if (res.state === 200) {
+                        // this.registerForm.codeToken = res.data.code;
+                        console.log("验证码已发送")
+                    } else {
+                        this.$message.error(res.message)
+                    }
+                })
+            },
+            getCodeText: function() {
+                if (this.wait_timer > 0) {
+                    return "已发送";
+                }
+                if (this.wait_timer === 0) {
+                    this.dis = false;
+                    this.showNum = false;
+                    return "重新获取";
+                }
+                if (this.wait_timer === false) {
+                    return "获取验证码";
+                }
+            },
             regForm: function(){
                 this.$refs.registerForm.validate((valid) => {
                     if (!valid) {
                         return
                     } else {
-                        const params = new URLSearchParams();
-                        params.append('username', this.registerForm.username)
-                        params.append('password', this.registerForm.password)
-                        console.log(params);
                         let data = {
                             email: this.registerForm.username,
-                            password: this.registerForm.password
+                            password: this.registerForm.password,
+                            code: this.registerForm.identifyCode
                         }
-                        api.reg(data).then(res => {
+                        personReq.reg(data).then(res => {
                             console.log(res)
                             if (res.state === 200) {
                                 this.$message.success('注册成功')
-                                window.sessionStorage.setItem('token', res.token)
                                 this.$router.push('/')
                             } else {
-                                this.$message.error('注册失败')
+                                this.$message.error(res.message)
                             }
                         }).catch(err => console.log(err))
                     }

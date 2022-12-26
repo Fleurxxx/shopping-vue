@@ -21,7 +21,7 @@ module.exports = defineConfig({
         // ws: true, // websocket支持
         secure: false,
         pathRewrite: {
-          "^/testIp": "/"
+          "^/testIp": ""
         }
       },
       // "/elseIp": {
