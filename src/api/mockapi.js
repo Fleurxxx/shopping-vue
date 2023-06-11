@@ -5,7 +5,7 @@ import { ElMessage } from "element-plus";
 
 
 const api = axios.create({
-    baseURL : 'http://192.168.47.164:8080/',
+    baseURL : 'http://localhost:8088',
     // baseURL : '/proxy_url',
     timeout: 20000,
     responseType: "json",

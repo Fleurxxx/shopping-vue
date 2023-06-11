@@ -31,7 +31,7 @@
                         id:"cart"
                     }, {
                         title:"已买到的宝贝",
-                        id:"finish"
+                        id:"personOrder"
                     }, {
                         title:"购买过的店铺",
                         id:"store"

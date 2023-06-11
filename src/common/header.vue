@@ -132,13 +132,16 @@
           <div class="nav-sub-bg"></div>
           <div class="nav-sub-wrapper" :class="{fixed:st}">
             <div class="w tabs">
-              <el-breadcrumb class="nav-list2" separator-icon="ArrowRight">
-                <el-breadcrumb-item v-for="item in tags"
-                                    :key="item.path"
-                                    :to="{ path: item.path }">
-                  {{item.label}}
-                </el-breadcrumb-item>
+              <el-breadcrumb separator-class="el-icon-arrow-right">
+                <el-breadcrumb-item :to="item.path" v-for="(item, index) in breadcrumbList" :key="index">{{ item.name }}</el-breadcrumb-item>
               </el-breadcrumb>
+<!--              <el-breadcrumb class="nav-list2" separator-icon="ArrowRight">-->
+<!--                <el-breadcrumb-item v-for="item in tags"-->
+<!--                                    :key="item.path"-->
+<!--                                    :to="{ path: item.path }">-->
+<!--                  {{item.label}}-->
+<!--                </el-breadcrumb-item>-->
+<!--              </el-breadcrumb>-->
             </div>
           </div>
         </div>
@@ -150,6 +153,8 @@
     import { mapMutations, mapState } from 'vuex'
     import { ArrowRight,Search } from '@element-plus/icons-vue'
     import 'element-ui/lib/theme-chalk/index.css'
+    import {personReq} from "@/api/request";
+    import Searchs from "@/views/goods/Goods"
     export default {
       data() {
         return {
@@ -166,7 +171,36 @@
           searchResults: [],
           timeout: null,
           token: '',
-          navList: []
+          navList: [],
+          breadcrumbList: []//面包屑
+        }
+      },
+      methods:{
+        handleIconClick(){
+          let data = {
+            goodKey: this.input
+          }
+          Searchs.methods.search(data)
+          this.$router.push('goods?keys='+this.input)
+        },
+        generateBreadcrumb() {
+          // 获取当前路由信息
+          const matched = this.$route.matched
+          console.log(this.$route.matched)
+          // 初始化面包屑导航数据
+          const breadcrumbList = []
+          // 遍历路由信息，生成面包屑导航数据
+          matched.forEach(item => {
+            const { meta, name, path } = item
+            if (meta.breadcrumb) {
+              breadcrumbList.push({
+                name,
+                path
+              })
+            }
+          })
+          // 保存面包屑导航数据
+          this.breadcrumbList = breadcrumbList
         }
       },
       computed: {
@@ -231,7 +265,15 @@
           //     })
         },
         mounted() {
+          console.log(this.$route.matched)
+          this.generateBreadcrumb()
         },
+        watch: {
+          $route() {
+            this.generateBreadcrumb()
+          }
+        },
+
         components: {}
       }
     }

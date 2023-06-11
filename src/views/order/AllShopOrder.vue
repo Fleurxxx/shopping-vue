@@ -1,6 +1,6 @@
 <template>
     <div>
-        <!--        商家的所有订单-->
+<!--        商家的所有订单-->
         <div>
             <el-dialog
                     v-model="dialogVisible"
@@ -34,8 +34,8 @@
                         <img :src="`${$store.getters.getUser.name}${scope.row.goodsImage}`" alt="" width="90" height="90">
                     </template>
                 </el-table-column>
-                <!--                <el-table-column prop="goodsName" align="center" label="商品名" width="150">-->
-                <!--                </el-table-column>-->
+<!--                <el-table-column prop="goodsName" align="center" label="商品名" width="150">-->
+<!--                </el-table-column>-->
                 <el-table-column prop="goodsPrice" align="center" label="实付" width="250">
                     <template #default="scope">
                         <span style="color: #000000">￥ {{scope.row.goodsMoney}}</span>
@@ -47,7 +47,6 @@
                 <el-table-column align="center" label="操作">
                     <template #default="scope" >
                         <el-button type="primary" style="height: 38px" @click="handleEdit(scope.row)">详情</el-button>
-                        <el-button type="primary" style="height: 38px" @click="closeEdit(scope.row)">关闭交易</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -62,7 +61,6 @@
 
 <script>
     import {personReq} from "@/api/request";
-    import { ElMessage, ElMessageBox } from 'element-plus'
     export default {
         name: "AllShopOrder",
         data() {
@@ -75,7 +73,7 @@
                 modalType: 0,
                 orderId: '',//订单号
                 orderState: '',//订单状态
-                // goodsName: '',//商品名称
+                goodsName: '',//商品名称
                 goodsPrice: '110 元',//商品价格
                 goodsNum: '2',//商品数量
                 goodsImg: '',//商品图
@@ -93,9 +91,8 @@
         methods: {
             getOrders() {
                 let data = {
-                    merchantId: 1
+                    merchantId: window.sessionStorage.getItem("merchantId")
                 }
-                console.log((data))
                 personReq.findShopAllOrder(data).then((res) => {
                     console.log(res)
                     for (let i = 0; i < res.data.length; i++) {
@@ -125,37 +122,6 @@
                     console.log(this.tableData.length)
                     this.total = this.tableData.length || 0
                 }).catch(err => console.log(err))
-            },
-            //关闭交易
-            closeEdit(index){
-                ElMessageBox.confirm(
-                    '是否确认关闭交易？',
-                    '提示',
-                    {
-                        confirmButtonText: '确认',
-                        cancelButtonText: '取消',
-                        type: '提示',
-                    }
-                ).then(() => {
-                    let data={
-                        orderId:index.orderId
-                    }
-                    personReq.cancelOrder(data).then((res)=>{
-                        console.log(res)
-                        if(res.code === 200){
-                            this.$message.success('关闭交易成功！')
-                            this.getOrders();
-                        }else{
-                            this.$message.error("后台出现故障");
-                        }
-                    }).catch(err => console.log(err))
-                })
-                    .catch(() => {
-                        ElMessage({
-                            type: 'info',
-                            message: '关闭交易失败',
-                        })
-                    })
             },
             handleEdit(index) {
                 // this.goodsName = index.goodsName

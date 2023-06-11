@@ -7,8 +7,8 @@
                     <router-link to="/home/mine/modifiedData">
                         <img v-bind:src="image" alt="">
                         <div class="info" v-show="true">
-                            <p>{{nickname}}</p>
-                            <p>{{introduce}}</p>
+                            <p style="font-size:18px;width: 50px">{{nickname}}</p>
+                            <p class="m-txt">{{introduce}}</p>
                         </div>
                     </router-link>
                     <div class="info-other">
@@ -20,7 +20,7 @@
                                 @select="handleSelect"
                         >
                             <el-menu-item index="0">
-                                <router-link to="/home">
+                                <router-link to="/home/mine/address">
                                     我的收货地址
                                 </router-link>
                             </el-menu-item>
@@ -71,7 +71,7 @@
                     <el-table :data="tableData" stripe style="width: 98%" height="90%" @select="select">
                         <el-table-column align="center" prop="goods" label="图片" width="110">
                             <template #default="scope" >
-                                <img :src="`http://localhost:8088/static/${scope.row.goodsImg}`" alt="" width="90" height="90">
+                                <img :src="`${$store.getters.getUser.name}${scope.row.goodsImage}`" alt="" width="90" height="90">
                             </template>
                         </el-table-column>
                         <el-table-column align="center" prop="orderState" label="状态" width="440">
@@ -120,18 +120,21 @@
                 let data = {
                     uid: window.sessionStorage.getItem("uid")
                 }
-                personReq.getUserInfo(data).then((res) => {
-                    console.log("查询全部个人信息：")
-                    console.log(res)
-                    console.log(res.data.image)
-                    this.images = res.data.image;
-                }).catch(err => console.log(err))
+                // personReq.getUserInfo(data).then((res) => {
+                //     console.log("查询全部个人信息：")
+                //     console.log(res)
+                //     console.log(res.data.image)
+                //     this.images = res.data.image;
+                //     this.nickname = res.data.username
+                //     this.introduce = res.data.introduce
+                // }).catch(err => console.log(err))
             },
             //获取全部物流信息
             getLogistics(){
                 let data = {
                     uid: window.sessionStorage.getItem("uid")
                 }
+                console.log(data)
                 personReq.getLogistics(data).then((res) => {
                     console.log("查询全部物流信息：")
                     console.log(res)
@@ -140,14 +143,19 @@
                             res.data[i].orderState = '等待收揽中...'
                         }else if(res.data[i].orderState === 2){
                             res.data[i].orderState = '【代收点】您的包裹暂存菜鸟驿站，您可选择到站自提或送货上门,如有疑问请联系xxx'
+                        }else if(res.data[i].orderState === 4){
+                            res.data[i].orderState = '已签收'
                         }
+                        res.data[i].goodsImage = "1.jpg"
                     }
+
                     this.tableData = res.data
                     console.log(this.tableData.length)
                     this.total = this.tableData.length || 0
                 }).catch(err => console.log(err))
             },
             receiving(data){
+                console.log("确认收货信息：")
                 console.log(data)
                 personReq.confirmReceipt(data).then((res) => {
                     console.log(res)
@@ -161,6 +169,14 @@
 
 
 <style lang="less" scoped>
+    .m-txt{
+        width: 50px;
+        font-weight: lighter;
+        font-size:12px;
+        text-align: left;
+        padding-top: 5px;
+        padding-left: 10px;
+    }
     .mine-warp{
         background-color: #f9f9f9;
         height: 100%;
@@ -206,6 +222,7 @@
     }
     .info-list2{
         float: left;
+        width: 100%;
     }
     .example-showcase .el-dropdown-link {
         cursor: pointer;

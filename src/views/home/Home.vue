@@ -35,7 +35,7 @@
             <el-row :gutter="10">
                 <el-col :span="6" v-for="item in tableData" :key="item.id" style="margin-bottom: 10px">
                     <div style="border: 1px solid #ccc; padding-bottom: 10px; border-radius: 10px; overflow: hidden">
-                        <img :src="`http://localhost:8088/static/${item.goodsImage}`" alt="" style="width: 100%; cursor: pointer" @click="this.$router.push('/home/detail?id='+item.goodsId)">
+                        <img :src="`${$store.getters.getUser.name}${item.goodsImage}`" alt="" style="width: 100%; height: 200px; cursor: pointer" @click="this.$router.push('/home/detail?id='+item.goodsId)">
                         <div style="color: #666; padding: 5px; font-size: 18px; font-weight:bold; cursor: pointer" @click="this.$router.push('/home/detail?id='+item.goodsId)">{{item.goodsTitle}}</div>
                         <div style="color: #666; padding: 5px; font-size: 14px">{{item.goodsDetail}}</div>
                         <div style="color: orangered; padding: 5px; font-size: 14px">￥ {{item.goodsPrice}}</div>
@@ -48,6 +48,8 @@
 
 <script>
     import {personReq} from "@/api/request";
+    import {ym} from "@/api/ym";
+
     export default {
         name:'Home',
         data(){
@@ -98,7 +100,11 @@
                 }
                 personReq.recommendGoods().then((res)=>{
                     console.log(res)
-                    if(res.state === 200){
+                    if(res.code === 200){
+                        for(let i = 0; i<res.data.length; i++){
+                            // res.data[i].goodsImage = res.data[i].goodsId+res.data[i].goodsImage
+                        }
+
                         this.tableData = res.data
                     }else{
                         this.$message.error("后端获取参数失败");

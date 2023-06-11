@@ -1,4 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { h } from 'vue'
+import { ElNotification } from 'element-plus'
 
 const routes = [
     {
@@ -11,31 +13,32 @@ const routes = [
           },
           children:[
               {
-                  path:"userHome",
+                  path:"userHome", //首页
+                  name: 'Home',
                   component: () => import('../views/home/Home.vue'),
+                  meta:{
+                      title:"首页"
+                  },
               },{
-                  path:"detail",
+                  path: "goods", //全部商品
+                  component: ()=>import('../views/goods/Goods.vue')
+              },{
+                  path:"detail", //商品详情页
                   component: ()=>import('../views/goods/Detail.vue')
-              },{
-                  path: "search",
-                  component: ()=>import('../views/search/Search.vue')
               },{
                   path: "favorite", //收藏夹
                   component: ()=>import('../views/favorite/Favorite.vue')
               },{
-                  path:"cart",
-                  component: ()=>import('../views/goods/Cart.vue')
+                  path:"cart", //购物车
+                  component: ()=>import('../views/cart/Cart.vue')
               },{
-                  path:"confirmOrder",
+                  path:"confirmOrder", //确认订单
                   component: ()=>import('../views/order/ConfirmOrder.vue')
               },{
-                  path: "goods", //全部商品
-                  component: ()=>import('../views/goods/Goods.vue')
-              }, {
-                  path: "refreshgoods",  //更新商品
-                  component: ()=>import('../views/refresh/Refreshgoods.vue')
-              }, {
-                  path: "mine",
+                  path:"trade", //付款
+                  component: ()=>import('../views/trade/Trade.vue')
+              },{
+                  path: "mine", //个人主页
                   redirect:'/home/mine/own',
                   component: ()=>import('../views/person/MinePage.vue'),
                   children:[
@@ -43,19 +46,41 @@ const routes = [
                           path:"own",
                           component: ()=>import('../views/person/MinMain.vue')
                       },{
-                          path:"cart",
-                          component: ()=>import('../views/goods/Cart.vue')
+                          path:"cart",  //购物车
+                          component: ()=>import('../views/cart/Cart.vue')
                       },{
-                          path:"modifiedData",
+                          path:"modifiedData",  //修改资料
                           component: ()=>import('../views/modified/ModifiedData.vue')
-                      }
+                      },{
+                          path:"address",  //地址管理
+                          component: ()=>import('../views/address/Address.vue')
+                      },{
+                          path: "personOrder", //全部订单
+                          redirect:"/home/mine/personOrder/all",
+                          component: ()=>import('../views/order/PersonOrder.vue'),
+                          children:[
+                              {
+                                  path:"all",  //全部订单
+                                  component: ()=>import('../views/order/AllOrder.vue')
+                              },{
+                                  path:"paid",  //已付款
+                                  component: ()=>import('../views/order/PaidOrder.vue')
+                              },{
+                                  path:"notPaid",  //未付款
+                                  component: ()=>import('../views/order/NotPaidOrder.vue')
+                              },{
+                                  path:"receive",  //待收货
+                                  component: ()=>import('../views/order/ReceiveOrder.vue')
+                              },
+                          ]
+                      },
                   ]
               }, {
                   path: "other",
                   component: ()=>import('../views/person/OtherPage.vue')
               }, {
                   path: "cart",
-                  component: ()=>import('../views/goods/Cart.vue')
+                  component: ()=>import('../views/cart/Cart.vue')
               }
           ]
       }, {
@@ -66,21 +91,24 @@ const routes = [
           name: 'Login',
           component: () => import('../views/login/Login.vue'),
           meta:{
-            title:"登录"
+            title:"登录",
+            requireAuth: true
           }
       }, {
           path: '/register',
           name: 'Register',
           component: () => import('../views/login/Register.vue'),
           meta:{
-            title:"注册"
+            title:"注册",
+            requireAuth: true //自定义字段，用于判断是否登录
           }
       }, {
           path: '/password',
           name: 'Password',
           component: () => import('../views/login/Password.vue'),
           meta:{
-            title:"修改密码"
+            title:"修改密码",
+            requireAuth: true
           }
       }, {
           path: '/admin',
@@ -108,7 +136,62 @@ const routes = [
                   component: () => import('../views/test/test.vue'),
               },
             ]
-      }
+      }, {
+        path: '/shop',
+        name: 'MerchantHome',
+        redirect:'/shop/merchantHome',
+        component: () => import('../views/shop/Sindex.vue'),
+        meta:{
+            title:"管理首页"
+        },
+        children:[
+            {
+                path:"merchantHome",
+                component: () => import('../views/shop/MerchantHome.vue'),
+            }, {
+                path:"addGoods",
+                component: () => import('../views/shop/AddGoods.vue'),
+            }, {
+                path:"goodsManage",
+                component: () => import('../views/shop/ShopGoodsManage.vue'),
+            }, {
+                path:"orderManage",
+                redirect:'/shop/orderManage/all',
+                component: () => import('../views/shop/OrderManage.vue'),
+                children:[
+                    {
+                        path:"all", //所有订单
+                        component: () => import('../views/order/AllShopOrder.vue'),
+                    },{
+                        path:"notPaid", //未付款
+                        component: () => import('../views/order/NotPaidShopOrder.vue'),
+                    },{
+                        path:"refund", //退款处理
+                        component: () => import('../views/order/RefundShopOrder.vue'),
+                    },
+                ]
+            }, {
+                path:"logisticsManage",
+                redirect:'/shop/logisticsManage/unfinished',
+                component: () => import('../views/shop/LogisticsManage.vue'),
+                children:[
+                    {
+                        path:"unfinished", //所有订单
+                        component: () => import('../views/shop/NotHaveLogistics.vue'),
+                    },{
+                        path:"finished", //未付款
+                        component: () => import('../views/shop/HaveLogistics.vue'),
+                    }
+                ]
+            }, {
+                path:"shopInfo",
+                component: () => import('../views/shop/ShopInfo.vue'),
+            }, {
+                path:"modifiedShop",
+                component: () => import('../views/modified/ModifiedShop.vue'),
+            }
+        ]
+    }
 ]
 
 export const router = createRouter({
@@ -120,9 +203,27 @@ export const router = createRouter({
 /**
  * 路由守卫
  */
-// router.beforeEach((guard)=>{
-//   brforeEach.checkAuth(guard,router);
-// })
+router.beforeEach((to, from, next) => {
+    // 判断路由访问是否需要的登录
+    // requireAuth为true时，不需要登录
+    if (to.matched.some(res => res.meta.requireAuth)) {
+        next();
+    }
+    // 不设置requireAuth为true时，需要登录
+    else {
+        // 判断是否已经登录
+        if (window.sessionStorage.getItem("uid")) {
+            next();
+        } else {
+            ElNotification({
+                title: '提示',
+                message: h('i', { style: 'color: teal' }, '请先登陆系统！'),
+            })
+            next({path: '/'});
+        }
+    }
+});
+
 
 
 

@@ -2,6 +2,7 @@
     <div class="home-box">
         <!-- 导航 子路由的出口 -->
         <m-header></m-header>
+
         <div class="constant">
             <router-view class="main"></router-view>
         </div>
@@ -34,6 +35,16 @@
 <style lang="scss" rel="stylesheet/scss" scope d>
     @import "src/assets/style/mixin";
     .home-box{
+        width: 100%;
+    }
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+    #app,.box{
+        height: 100%;
         width: 100%;
     }
     .main {

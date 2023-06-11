@@ -1,10 +1,10 @@
 <template xmlns:>
     <div class="message">
-<!--        <h1>商品管理</h1>-->
+        <!--        <h1>商品管理</h1>-->
         <el-dialog
                 v-model="dialogVisible"
                 title="插入商品信息"
-                width="40%"
+                width="35%"
                 :before-close="closeDialog">
             <!-- 表单Form -->
             <!-- ref=form:为了通过this.$refs调用组件的方法 -->
@@ -13,31 +13,28 @@
                 <el-form-item label="商品图片"  prop="goodsImage" :required="true" style="text-align:left;">
                     <el-upload
                             class="avatar-uploader"
-                            action="http://192.168.47.164:8080/users/uploadImg"
+                            action="http://192.168.47.164:8080/user/uploadImg"
                             :show-file-list="false"
                             :on-success="handleAvatarSuccess"
                             :before-upload="beforeAvatarUpload">
-                            <img v-if="imageUrl" :src="imageUrl" style="width: 100px; height: 100px" class="avatar">
-<!--                            <i  v-else class="el-icon-plus avatar-uploader-icon"></i>-->
+                        <img v-if="imageUrl" :src="imageUrl" style="width: 100px; height: 100px" class="avatar">
+                        <!--                            <i  v-else class="el-icon-plus avatar-uploader-icon"></i>-->
                         <el-icon style="width: 100px; height: 100px" class="avatar-uploader-icon"><Plus /></el-icon>
                     </el-upload>
-<!--                    <el-image-->
-<!--                            style="width: 100px; height: 100px"-->
-<!--                            :src="form.goodsImage"-->
-<!--                    ></el-image>-->
-<!--                    <div class="goods-img">-->
-<!--                        <img  alt="" class="dispalyimg" >-->
-<!--                        <input type="file"  class="upinput"  ref="file" @change="showimg"><i class="el-icon-plus" id="changes" @click="changeimg"></i>-->
-<!--                    </div>-->
+                    <!--                    <el-image-->
+                    <!--                            style="width: 100px; height: 100px"-->
+                    <!--                            :src="form.goodsImage"-->
+                    <!--                    ></el-image>-->
+                    <!--                    <div class="goods-img">-->
+                    <!--                        <img  alt="" class="dispalyimg" >-->
+                    <!--                        <input type="file"  class="upinput"  ref="file" @change="showimg"><i class="el-icon-plus" id="changes" @click="changeimg"></i>-->
+                    <!--                    </div>-->
                 </el-form-item>
                 <el-form-item label="名称" prop="goodsTitle">
                     <el-input placeholder="请输入商品名称" v-model="form.goodsTitle"></el-input>
                 </el-form-item>
                 <el-form-item label="单一售价" prop="goodsPrice">
                     <el-input placeholder="请输入商品售价" v-model="form.goodsPrice"></el-input>
-                </el-form-item>
-                <el-form-item label="店铺ID" prop="merchantId" :required="true" style="text-align:left">
-                    <el-input placeholder="请输入商品所属店铺ID" v-model="form.merchantId"></el-input>
                 </el-form-item>
                 <el-form-item label="新品与否" prop="isNew" :required="true" style="text-align:left">
                     <div class="mb-2 flex items-center text-sm">
@@ -93,12 +90,12 @@
         <div class="manage-header">
             <div class="goods-msg-but">
                 <!-- 新增按钮  -->
-<!--                <el-button type="primary" @click="handlecreate">新 增</el-button>-->
+                <el-button type="primary" @click="handlecreate">新 增</el-button>
 <!--                <el-button type="primary" @click="allList">全 部</el-button>-->
 <!--                <el-button type="primary" @click="upList">已上架</el-button>-->
 <!--                <el-button type="primary" @click="downList">已下架</el-button>-->
             </div>
-           <!-- 搜索模块-->
+            <!-- 搜索模块-->
             <div class="goods-msg-search">
                 <el-form :model="searchForm" :rules="searchForm" ref="searchForm" :inline="true">
                     <el-form-item>
@@ -113,10 +110,10 @@
         <div class="common-table">
             <!-- 商品数据Table -->
             <el-table :data="tableData" stripe style="width: 98%" height="90%" @select="select">
-<!--                <el-table-column prop="uid" label=""-->
-<!--                                 type="selection"-->
-<!--                                 :selectable="selected">-->
-<!--                </el-table-column>-->
+                <!--                <el-table-column prop="uid" label=""-->
+                <!--                                 type="selection"-->
+                <!--                                 :selectable="selected">-->
+                <!--                </el-table-column>-->
                 <el-table-column align="center" prop="image" label="图片" width="140">
                     <template #default="scope" >
                         <img :src="`${$store.getters.getUser.name}${scope.row.goodsImage}`" alt="" width="90" height="90">
@@ -132,19 +129,19 @@
                 </el-table-column>
                 <el-table-column align="center" prop="goodsStatus" label="状态">
                       <template #default="scope" >
-                            <el-switch v-model="scope.row.goodsStatus"
-                                       @click="changeSwitch(scope.row)"
-                                       inline-prompt
-                                       active-text="上架"
-                                       inactive-text="下架"/>
-                      </template>
+                    <el-switch v-model="scope.row.goodsStatus"
+                               @click="changeSwitch(scope.row)"
+                               inline-prompt
+                               active-text="上架"
+                               inactive-text="下架"/>
+                </template>
                 </el-table-column>
                 <el-table-column  align="center" prop="auditTime" label="上架时间">
                 </el-table-column>
                 <!-- 自定义列 -->
                 <el-table-column align="center" label="操作" >
                     <template #default="scope" >
-<!--                        <el-button style="padding-left: 15px" type="primary" @click="handleEdit()">编辑</el-button>-->
+                        <!--                        <el-button style="padding-left: 15px" type="primary" @click="handleEdit()">编辑</el-button>-->
                         <el-button style="padding-right: 15px" type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
@@ -244,10 +241,11 @@
                 console.log(file)
                 console.log(res)
                 this.imageUrl = URL.createObjectURL(file.raw);
-                imageUrl.value = res.message
-                console.log("头像路径"+res.message)
-                let pos = res.message.lastIndexOf("/");//'/所在的最后位置'
-                let str = res.message.slice(pos+1);//截取文件名称字符串
+                imageUrl.value = res.data
+                console.log("头像路径"+res.data)
+                let pos = res.data.lastIndexOf("/");//'/所在的最后位置'
+                let str = res.data.slice(pos+1);//截取文件名称字符串
+                console.log(str)
                 this.form.goodsImage = str;
             },
             beforeAvatarUpload(file) { // 上传前的方法,限制上传的大小,还有格式
@@ -300,7 +298,7 @@
                     goodsId:index.goodsId
 
                 }
-                this.$confirm('此操作将永久删除该商品, 是否继续?', '提示', {
+                this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -341,8 +339,8 @@
                             goodsStatus: this.form.goodsStatus, //是否上架 0待审核，1上架，2下架
                             audit_time: this.form.audit_time, //上架时间
                             goodsImage: this.form.goodsImage,//上传图片
-                            merchantId: this.form.merchantId
-
+                            merchantId: window.sessionStorage.getItem("merchantId"),
+                            uid: window.sessionStorage.getItem("uid")
                         }
                         // 提交数据
                         if (this.modalType === 0) {
@@ -350,7 +348,7 @@
                             // 新增
                             personReq.addGoods(formData).then((res) => {
                                 console.log(res)
-                                if (res.state === 200) {
+                                if (res.code === 200) {
                                     this.getGoodsList();
                                     this.$message.success('商品添加成功')
                                 } else {
@@ -367,7 +365,7 @@
                             // 编辑
                             personReq.updateGoods(this.form).then((res) => {
                                 console.log(res)
-                                if (res.state === 200) {
+                                if (res.code === 200) {
                                     this.getGoodsList();
                                     this.$message.success('商品编辑成功')
                                 } else {
@@ -381,6 +379,7 @@
                         }
                         // 清空,关闭
                         this.closeDialog()
+                        this.imageUrl = ''
                     }
                 })
             },
@@ -395,32 +394,35 @@
             //所有上架商品
             upList(){
                 let data = {
+                    merchantId: window.sessionStorage.getItem("merchantId"),
                     page : this.pageData.page,
                     limit : 5,
                     key : this.searchForm.name
                 }
-                personReq.getUpGoods(data).then((res) => {
+                personReq.getUpGoodsInShop(data).then((res) => {
                     console.log(res)
-                    if (res.state === 200){
-                        for(var i=0; i<res.data.list.length; i++){
-                            if(res.data.list[i].isSpec === 1){
-                                res.data.list[i].isSpec = '多种规格'
+                    if (res.code === 200){
+                        for(var i=0; i<res.data.records.length; i++){
+                            if(res.data.records[i].isSpec === 1){
+                                res.data.records[i].isSpec = '多种规格'
                             }else{
-                                res.data.list[i].isSpec = '单一规格'
+                                res.data.records[i].isSpec = '单一规格'
                             }
 
-                            if(res.data.list[i].isNew === 1){
-                                res.data.list[i].isNew = '是'
+                            if(res.data.records[i].isNew === 1){
+                                res.data.records[i].isNew = '是'
                             }else {
-                                res.data.list[i].isNew = '不是'
+                                res.data.records[i].isNew = '不是'
                             }
-                            if(res.data.list[i].goodsStatus === 1){
-                                res.data.list[i].goodsStatus = true
+                            if(res.data.records[i].goodsStatus === 1){
+                                res.data.records[i].goodsStatus = true
                             }else {
-                                res.data.list[i].goodsStatus = false
+                                res.data.records[i].goodsStatus = false
                             }
+                            res.data.records[i].goodsImage = res.data.records[i].goodsId+res.data.records[i].goodsImage
+                            // console.log(res.data.records[i].goodsImage)
                         }
-                        this.tableData = res.data.list
+                        this.tableData = res.data.records
                         this.total = res.data.total || 0
                         this.searchForm.name = ''
                     } else{
@@ -431,13 +433,14 @@
             //所有下架商品
             downList(){
                 let data = {
+                    merchantId: window.sessionStorage.getItem("merchantId"),
                     page : this.pageData.page,
                     limit : 5,
                     key : this.searchForm.name
                 }
-                personReq.getDownGoods(data).then((res) => {
+                personReq.getDownGoodsInShop(data).then((res) => {
                     console.log(res)
-                    if (res.state === 200){
+                    if (res.code === 200){
                         for(var i=0; i<res.data.list.length; i++){
                             if(res.data.list[i].isSpec === 1){
                                 res.data.list[i].isSpec = '多种规格'
@@ -455,6 +458,7 @@
                             }else {
                                 res.data.list[i].goodsStatus = false
                             }
+
                         }
                         this.tableData = res.data.list
                         this.total = res.data.total || 0
@@ -466,13 +470,15 @@
             },
             getGoodsList(){
                 let data = {
+                    uid:  parseInt(window.sessionStorage.getItem("uid")),
                     page : this.pageData.page,
                     limit : 5,
                     key : this.searchForm.name
                 }
                 console.log("关键字："+data.key)
                 console.log("当前页数："+data.page)
-                personReq.getGoods(data).then((res) => {
+                console.log(data)
+                personReq.getGoodsInShop(data).then((res) => {
                     console.log(res)
                     if (res.code === 200){
                         for(var i=0; i<res.data.records.length; i++){
@@ -492,6 +498,8 @@
                             // }else {
                             //     res.data.records[i].goodsStatus = false
                             // }
+                            // res.data.records[i].goodsImage = res.data.records[i].goodsId+res.data.records[i].goodsImage
+                            // console.log(res.data.records[i].goodsImage)
                         }
                         this.tableData = res.data.records
                         // console.log("===============================")
@@ -535,12 +543,14 @@
                     personReq.goodsStatus(item).then((res) => {
                         console.log(res)
                         this.getGoodsList();
+                        // this.downList();
                     }).catch(err => console.log(err))
                 }else{ //要下架
                     // item.goodsStatus=1;
                     personReq.goodsStatus(item).then((res) => {
                         console.log(res)
                         this.getGoodsList();
+                        // this.upList();
                     }).catch(err => console.log(err))
                 }
             }

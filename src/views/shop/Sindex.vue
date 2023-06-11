@@ -2,12 +2,10 @@
     <div class="common-layout">
         <el-container>
             <el-aside width="200px" >
-                <a-side/>
+                <s-side/>
             </el-aside>
             <el-container class="container">
-<!--                <el-header>-->
-                    <a-header></a-header>
-<!--                </el-header>-->
+                <s-header></s-header>
                 <el-main>
                     <router-view class="main"></router-view>
                 </el-main>
@@ -18,13 +16,13 @@
 </template>
 
 <script>
-    import AHeader from '../../common/AHeader.vue';
-    import ASide from '../../common/Aside.vue';
+    import SHeader from '../../common/SHeader.vue';
+    import SSide from '../../common/Sside.vue';
     export default {
+        name: "Sindex",
         components:{
-            AHeader,ASide
+            SHeader,SSide
         },
-
     }
 </script>
 
@@ -41,12 +39,7 @@
     #app,.box{
         height: 100%;
     }
-    .common-layout{
-        width: 100%;
-        position:absolute;
-    }
     .container{
         height: 100%
     }
-
 </style>

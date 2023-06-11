@@ -128,6 +128,7 @@
                         clearInterval(timer_interval);
                     }
                 }, 1000);
+                console.log(data.email)
                 personReq.getCode(data).then(res => {
                     console.log(res)
                     if (res.state === 200) {

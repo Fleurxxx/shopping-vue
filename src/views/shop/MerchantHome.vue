@@ -1,29 +1,28 @@
 <template>
     <div>
         <el-row>
-<!--            左侧-->
+            <!--            左侧-->
             <el-col :span="8"><div class="grid-content ep-bg-purple" />
                 <el-card class="box-card">
                     <div class="user">
                         <img src="../../assets/images/img/羊羊.jpg" alt="">
                         <div class="userinfo">
-                            <p class="name">Admin</p>
-                            <p class="ac">管理员</p>
+                            <p class="name">Shop</p>
+                            <p class="ac">商家</p>
                         </div>
                     </div>
                 </el-card>
                 <div class="graph2">
-                    <!-- 柱状图 -->
-                    <el-card style="height:260px">
-                        <div id="charts2" style="height:270px"></div>
+                    <el-card style="margin-top: 20px;">
+                        <el-table :data="TableData" style="width: 100%">
+                            <!-- 这里的val,key对应的是对象里的 -->
+                            <el-table-column v-for="(value, key) in TableLabel" :prop="key" :label="value">
+                            </el-table-column>
+                        </el-table>
                     </el-card>
-<!--                    &lt;!&ndash; 饼状图 &ndash;&gt;-->
-<!--                    <el-card style="height:260px">-->
-<!--                        <div id="charts2" style="height:320px"></div>-->
-<!--                    </el-card>-->
                 </div>
             </el-col>
-<!--            右侧-->
+            <!--            右侧-->
             <el-col :span="16" ><div class="grid-content ep-bg-purple-light" />
                 <div class="home-right-box">
                     <el-card v-for="item in CountData" :key="item.name" :body-style="{ display:'flex', padding:'15px' }">
@@ -34,7 +33,6 @@
                             <p class="price">{{ item.value }}</p>
                             <p class="desc">{{ item.name }}</p>
                         </div>
-                        <!--                    <span>{{ item.value }}</span>-->
                     </el-card>
                 </div>
                 <div class="graph1">
@@ -62,7 +60,7 @@
     import video from '../../api/echartsData/video'
 
     export default {
-        name: "AdminHome",
+        name: "MerchantHome",
         components:{
 
         },
@@ -113,47 +111,23 @@
                 // 使用刚指定的配置项和数据显示图表。
                 echarts1.setOption(echarts1Option);
 
-                // 柱状图
-                const echarts2 = echarts.init(document.getElementById("charts2"))
-                var echarts2Option = user
 
-                // 配置
-                echarts2Option.xAxis.data = userData.map(item => item.date)
-                echarts2Option.series = [
-                    {
-                        name: '新增用户',
-                        data: userData.map(item => item.new),
-                        // 类型:bar是柱状图
-                        type: 'bar'
-                    }
-                    ,
-                    {
-                        name: '活跃用户',
-                        data: userData.map(item => item.active),
-                        type: 'bar'
-                    }
-                ]
-
-                echarts2.setOption(echarts2Option);
-
-
-                // 饼状图
-                // const echarts2 = echarts.init(document.getElementById("charts2"))
-                // var echarts2Option = video
-                // echarts2Option.series = {
-                //     data: videoData,
-                //     type: 'pie'
-                // }
-                // console.log(echarts2Option)
-                // echarts2.setOption(echarts2Option);// echarts图表
             }).catch(err => console.log(err))
 
-
+            this.getShopInfo();
         },
         methods: {
-            // priceFormate(price) {
-            //     return "￥" + price
-            // },
+            getShopInfo(){
+                let data = {
+                    uid: window.sessionStorage.getItem("uid")
+                }
+                window.sessionStorage.setItem('merchantId', 1) //图个方便
+                // personReq.getShopInfo(data).then((res) => {
+                //     console.log("查询店铺信息为：")
+                //     console.log(res)
+                //     window.sessionStorage.setItem('merchantId', res.data.merchantId)
+                // }).catch(err => console.log(err))
+            },
         },
     }
 </script>
@@ -221,7 +195,7 @@
     }
     .graph2 {
         display: flex;
-        margin-top:10px;
+        margin-top:-10px;
         .el-card {
             width: 100%;
         }

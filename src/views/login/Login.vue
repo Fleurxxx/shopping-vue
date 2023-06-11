@@ -85,7 +85,6 @@
     import {validUsername}  from '../../utils/validate.js'
     import Sidentify from '../../components/IdentifyCode.vue'
     import {validateEmail, validateNull} from "@/utils/validate";
-    import api from '@/utils/apix'
     import {personReq} from "@/api/request";
     export default {
         name: "Login",
@@ -123,7 +122,7 @@
                 passwordType: 'password',
                 loginRules: {
                     // username: [{required: true, trigger: 'blur', validator: validateEmail}],
-                    password: [{required: true, trigger: 'blur', validator: validatePassword}],
+                    // password: [{required: true, trigger: 'blur', validator: validatePassword}],
                     identifyCode:[{required:true,trigger:'blur',validator:validateCode}]
                 },
                 identifyCode: '',
@@ -140,13 +139,13 @@
                         // params.append('password', this.loginForm.password)
                         // console.log(params);
                         let data={
-                            email:this.loginForm.username,
+                            username:this.loginForm.username,
                             password:this.loginForm.password
                         }
                         let code = this.identifyCode;
                         personReq.login(data).then((res) => {
                             console.log(res)
-                            if (res.state === 200) {
+                            if (res.code === 200) {
                                 this.$message.success('登陆成功')
                                 // 1、将登录成功之后的token，保存到客户端的sessionStorage中
                                 window.sessionStorage.setItem('token', res.data.token)
@@ -155,7 +154,13 @@
                                 // 2、项目中出现登录以外的其他api接口，必须在登陆之后访问
                                 // 3、token只在当前网站打开期间生效，所以将token保存在sessionStorage中
                                 // 4、通过编程式导航跳转到主页，路由地址为/home
-                                this.$router.push('home')
+                                if(this.loginForm.username==="2"){
+                                    this.$router.push('admin')
+                                }else if(this.loginForm.username==="3"){
+                                    this.$router.push('shop')
+                                }else{
+                                    this.$router.push('home')
+                                }
                             } else {
                                 if(res.message===null){
                                     this.$message.error("登录失败")
@@ -284,5 +289,6 @@
     /deep/.el-form-item__content {
         line-height: 0px;
     }
+
 
 </style>

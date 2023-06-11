@@ -1,17 +1,17 @@
 <template>
     <div>
-        <!--        商家的所有订单-->
+<!--        <h2>全部订单</h2>-->
         <div>
             <el-dialog
                     v-model="dialogVisible"
-                    title="订单详情页"
+                    title="商品详情页"
                     width="30%"
                     :before-close="closeDialog">
                 <td style="padding-left: 80px">
                     订单号：<input type="text" v-model="orderId"/>
                 </td>
                 <div style="padding-left: 40px">
-<!--                    商品名：{{"\xa0\xa0\xa0"}}<input type="text" v-model="goodsName"/><br/>-->
+                    商品名：{{"\xa0\xa0\xa0"}}<input type="text" v-model="goodsName"/><br/>
                     价格: {{"\xa0\xa0\xa0"}}<input type="text" v-model="goodsPrice"/><br/>
                     商品数量: {{"\xa0\xa0\xa0"}}<input type="text" v-model="goodsNum"/><br/>
                     快递公司名称: {{"\xa0\xa0\xa0"}}<input type="text" v-model="expressName"/><br/>
@@ -34,9 +34,9 @@
                         <img :src="`${$store.getters.getUser.name}${scope.row.goodsImage}`" alt="" width="90" height="90">
                     </template>
                 </el-table-column>
-                <!--                <el-table-column prop="goodsName" align="center" label="商品名" width="150">-->
-                <!--                </el-table-column>-->
-                <el-table-column prop="goodsPrice" align="center" label="实付" width="250">
+<!--                <el-table-column prop="goodsName" align="center" label="商品名" width="150">-->
+<!--                </el-table-column>-->
+                <el-table-column prop="goodsPrice" align="center" label="实付" width="110">
                     <template #default="scope">
                         <span style="color: #000000">￥ {{scope.row.goodsMoney}}</span>
                     </template>
@@ -47,7 +47,6 @@
                 <el-table-column align="center" label="操作">
                     <template #default="scope" >
                         <el-button type="primary" style="height: 38px" @click="handleEdit(scope.row)">详情</el-button>
-                        <el-button type="primary" style="height: 38px" @click="closeEdit(scope.row)">关闭交易</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -62,9 +61,8 @@
 
 <script>
     import {personReq} from "@/api/request";
-    import { ElMessage, ElMessageBox } from 'element-plus'
     export default {
-        name: "AllShopOrder",
+        name: "AllOrder",
         data() {
             return {
                 // 表单是否打开
@@ -73,51 +71,47 @@
                 tableData: [],
                 // 打开表单:新建0,编辑1
                 modalType: 0,
-                orderId: '',//订单号
-                orderState: '',//订单状态
-                // goodsName: '',//商品名称
-                goodsPrice: '110 元',//商品价格
-                goodsNum: '2',//商品数量
-                goodsImg: '',//商品图
-                expressName: '顺丰',//快递公司名称
-                expressNo: '134123114',//快递号
-                deliverMoney: '10元',//运费
-                userName: '王君月',//收货人
-                userPhone: '12424446624',//联系电话
-                userAddress: '天津市南开区南开大学老校区',//收货地址
+                orderId:'',//订单号
+                orderState:'',//订单状态
+                goodsName:'',//商品名称
+                goodsPrice:'',//商品价格
+                goodsNum:'',//商品数量
+                goodsImg:'',//商品图
+                expressName:'',//快递公司名称
+                expressNo:'',//快递号
+                deliverMoney:'',//运费
+                userName:'',//收货人
+                userPhone:'',//联系电话
+                userAddress:'',//收货地址
             };
         },
         mounted() {
             this.getOrders();
         },
-        methods: {
-            getOrders() {
+        methods:{
+            getOrders(){
                 let data = {
-                    merchantId: 1
+                    uid: window.sessionStorage.getItem("uid")
                 }
-                console.log((data))
-                personReq.findShopAllOrder(data).then((res) => {
+                personReq.findPersonAllOrder(data).then((res) => {
                     console.log(res)
-                    for (let i = 0; i < res.data.length; i++) {
-                        if (res.data[i].orderState === 0) {
+                    for(let i=0; i<res.data.length; i++){
+                        if(res.data[i].orderState === 0){
                             res.data[i].orderState = '商品尚未发货'
-                        } else if (res.data[i].orderState === 1) {
+                        }else if(res.data[i].orderState === 1){
                             res.data[i].orderState = '等待收揽中...'
-                        } else if (res.data[i].orderState === 2) {
-                            res.data[i].orderState = '已签收'
-                        } else if (res.data[i].orderState === 3) {
+                        }else if(res.data[i].orderState === 2){
+                            res.data[i].orderState = '【代收点】您的包裹暂存菜鸟驿站，您可选择到站自提或送货上门,如有疑问请联系xxx'
+                        }else if(res.data[i].orderState === 3){
                             res.data[i].orderState = '已退款'
-                        } else if (res.data[i].orderState === -1) {
+                        }else if(res.data[i].orderState === -1){
                             res.data[i].orderState = '订单已取消'
-                        } else if (res.data[i].orderState === -2) {
-                            res.data[i].orderState = '顾客尚未付款，如有需要请前往 “未付款” 进行处理'
-                        } else if (res.data[i].orderState === -4) {
-                            res.data[i].orderState = '买家正在申请退款，请及时处理。'
+                        }else if(res.data[i].orderState === -2){
+                            res.data[i].orderState = '商品尚未付款，请及时付款'
+                        }else if(res.data[i].orderState === -4){
+                            res.data[i].orderState = '退款中..'
                         }else if(res.data[i].orderState === 4){
-                            res.data[i].orderState = '买家已签收'
-                        }
-                        if(res.data[i].expressNo === 0){
-                            res.data[i].expressNo = '暂无'
+                            res.data[i].orderState = '已签收'
                         }
                         res.data[i].goodsImage = "1.jpg"
                     }
@@ -126,49 +120,18 @@
                     this.total = this.tableData.length || 0
                 }).catch(err => console.log(err))
             },
-            //关闭交易
-            closeEdit(index){
-                ElMessageBox.confirm(
-                    '是否确认关闭交易？',
-                    '提示',
-                    {
-                        confirmButtonText: '确认',
-                        cancelButtonText: '取消',
-                        type: '提示',
-                    }
-                ).then(() => {
-                    let data={
-                        orderId:index.orderId
-                    }
-                    personReq.cancelOrder(data).then((res)=>{
-                        console.log(res)
-                        if(res.code === 200){
-                            this.$message.success('关闭交易成功！')
-                            this.getOrders();
-                        }else{
-                            this.$message.error("后台出现故障");
-                        }
-                    }).catch(err => console.log(err))
-                })
-                    .catch(() => {
-                        ElMessage({
-                            type: 'info',
-                            message: '关闭交易失败',
-                        })
-                    })
-            },
-            handleEdit(index) {
-                // this.goodsName = index.goodsName
-                // this.goodsPrice = index.goodsPrice + '  元'
-                // this.goodsNum = index.goodsNum + '  个'
-                // this.goodsImg = index.goodsImg
-                // this.expressName = index.expressName
-                // this.expressNo = index.expressNo
-                // this.deliverMoney = index.deliverMoney + '  元'
-                // this.userName = index.userName
-                // this.userPhone = index.userPhone
-                // this.userAddress = index.userAddress
-                // this.orderId = index.orderId
+            handleEdit(index){
+                this.goodsName = index.goodsName
+                this.goodsPrice = index.goodsPrice +'  元'
+                this.goodsNum = index.goodsNum + '  个'
+                this.goodsImg = index.goodsImg
+                this.expressName = index.expressName
+                this.expressNo = index.expressNo
+                this.deliverMoney = index.deliverMoney +'  元'
+                this.userName = index.userName
+                this.userPhone = index.userPhone
+                this.userAddress = index.userAddress
+                this.orderId = index.orderId
                 this.openForm()
             },
             // 打开表单
@@ -181,7 +144,7 @@
                 this.dialogVisible = false
             },
             //分页
-            currentChange() {
+            currentChange(){
 
             }
 
@@ -190,6 +153,9 @@
 </script>
 
 <style lang="less" scoped>
+    ::v-deep .el-input__wrapper {
+        padding: 0;
+    }
     .order-table{
         padding-top: 10px;
     }

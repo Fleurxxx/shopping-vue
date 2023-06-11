@@ -8,7 +8,7 @@
             <el-row :gutter="10">
                 <el-col :span="6" v-for="item in tableData" :key="item.id" style="margin-bottom: 10px">
                     <div style="border: 1px solid #ccc; padding-bottom: 10px; border-radius: 10px; overflow: hidden">
-                        <img :src="`http://localhost:8088/static/${item.goodsImage}`" alt="" style="width: 100%; cursor: pointer" @click="this.$router.push('/home/detail?id='+item.goodsId)">
+                        <img :src="`${$store.getters.getUser.name}${item.goodsImage}`" alt="" style="width: 100%; height: 198px; cursor: pointer" @click="this.$router.push('/home/detail?id='+item.goodsId)">
                         <div style="color: #666; padding: 5px; font-size: 18px; font-weight:bold; cursor: pointer" @click="this.$router.push('/home/detail?id='+item.goodsId)">{{item.goodsTitle}}</div>
                         <div style="color: #666; padding: 5px; font-size: 14px">{{item.goodsDetail}}</div>
                         <div style="color: orangered; padding: 5px; font-size: 14px">￥ {{item.goodsPrice}}</div>
@@ -33,6 +33,7 @@
                 tableData:[],
                 total:0,
                 pageNum:1,
+                size:5,
                 pageSize:10,
                 goodsId:"",
                 goodsTitle:"",
@@ -42,12 +43,35 @@
         },
         //初始化数据
         mounted(){
-            this.load();//获取后台的商品数据
+            console.log(this.$route.query.keys)
+            // this.load();//获取后台的商品数据
+            let goodKey = this.$route.query.keys
+            this.search(goodKey)
         },
         methods:{
-            search: function(event) {
-                event.preventDefault(); //取消事件的默认行为
-                let data = this.searchForm.key;
+            search(index) {
+                let data = {
+                    goodsKey:index,
+                    // pageNum:0,
+                    // size:0
+                }
+                // let key = JSON.stringify(index);
+                console.log(data)
+                let num = 1;
+                let len = 1;
+                personReq.searchGoods(data.goodsKey,num,len).then((res)=>{
+                    console.log(res)
+                    if(res.code === 200){
+                        console.log("搜索成功！")
+                        for(let i = 0; i<res.data.records.length; i++){
+                            // res.data.records[i].goodsImage = res.data.records[i].goodsId+res.data.records[i].goodsImage
+                        }
+                        this.tableData = res.data.records
+
+                    }else{
+                        this.$message.error("后台出现故障");
+                    }
+                }).catch(err => console.log(err))
             },
             //商品显示
             load(){

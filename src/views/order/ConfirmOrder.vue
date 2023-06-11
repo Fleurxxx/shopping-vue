@@ -22,7 +22,7 @@
             <el-table :data="tableData" stripe style="width: 98%" height="90%" @select="select">
                 <el-table-column align="center" prop="image" label="图片" width="180">
                     <template #default="scope" >
-                        <img :src="`http://localhost:8088/static/${scope.row.goodsImg}`" alt="" width="90" height="90">
+                        <img :src="`${$store.getters.getUser.name}${scope.row.goodsImage}`" alt="" width="90" height="90">
                     </template>
                 </el-table-column>
                 <el-table-column align="center" prop="goodsTitle" label="名称" width="250">
@@ -54,9 +54,11 @@
             return {
                 AuthoCheck: '', //单选选中的值
                 authTypeList: [{
-                    id:1,value:'北京'
+                    id:1,value:'天津市和平区第四小学'
                 },{
-                    id:1,value:'湖南'
+                    id:1,value:'河北省安阳市金山屯区宝山路32号真新六街坊'
+                },{
+                    id:1,value:'广东省安顺市南岔区安远路195号爱里舍花园'
                 }],
                 orderData:'',
                 totalPrice:'',
@@ -83,13 +85,17 @@
                 }
                 personReq.findAddress(data).then((res)=>{
                     console.log(res)
-                    if(res.state === 200){
+                    if(res.code === 200){
                         console.log("查询地址成功！")
                         for(let i=0; i<res.data.length; i++){
-                            console.log(res.data[i].addId)
+                            // console.log(res.data[i].addId)
                             this.authTypeList[i].id = res.data[i].addId
                             this.authTypeList[i].value = res.data[i].address
+                            if(res.data[i].prime === 1){
+                                this.AuthoCheck = res.data[i].address
+                            }
                         }
+
                     }else{
                         this.$message.error("后台出现故障");
                     }
@@ -108,22 +114,63 @@
             settleAccount(){
                 let data = {
                     goodsMoney : this.totalPrice,
-                    needPay : this.totalPrice,
+                    // needPay : this.totalPrice,
                     addId:this.addId,
-                    address:this.address,
+                    userAddress:this.address,
                     uid: window.sessionStorage.getItem("uid"),
-                    goods:JSON.parse(this.$route.query.row).goods
+                    goods:[],
+                    merchantId:1
                 }
+                data.goods = JSON.parse(this.$route.query.row).goods
                 console.log(data)
                 personReq.submitOrder(data).then((res)=>{
                     console.log(res)
-                    if(res.state === 200){
+                    if(res.code === 200){
                         this.$message.success('锁单成功！请尽快支付')
+                        this.deleteCart();
+                        let data1 = {
+                            needPay : this.totalPrice,
+                            orderId : res.data
+                        }
+                        this.$router.push({
+                            // 跳转到的页面路径
+                            path: '/home/trade',
+                            // 传递的参数集合
+                            query: {
+                                row: JSON.stringify(data1)
+                            }
+                        })
+                    }else{
+                        if(res.message===null){
+                            this.$message.error("后台出现故障")
+                        }else{
+                            this.$message.error(res.message)
+                        }
+                    }
+                }).catch(err => console.log(err))
+
+            },
+            deleteCart(){
+                let data = {
+                    uid: parseInt(window.sessionStorage.getItem("uid")),
+                    goods:[],
+                    // goodId:[],
+                }
+                data.goods = JSON.parse(this.$route.query.row).goods
+                // let goodss = [];
+                // goodss = JSON.parse(this.$route.query.row).goods
+                // for(let i=0;  i<goodss.length; i++){
+                //     data.goodId.push(goodss[i].goodId)
+                // }
+                console.log(data)
+                personReq.deleteCartGoods(data).then((res)=>{
+                    console.log(res)
+                    if(res.code === 200){
+                        console.log("购物车内商品删除成功！")
                     }else{
                         this.$message.error("后台出现故障");
                     }
                 }).catch(err => console.log(err))
-
             }
         }
 

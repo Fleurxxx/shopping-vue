@@ -4,7 +4,7 @@
         <el-card>
             <div style="display: flex">
                 <div style="width: 300px;padding: 10px">
-                    <el-image :src="`http://localhost:8088/static/${goods.goodsImage}`" :preview-src-list="[`http://localhost:8088/static/${goods.goodsImage}`]" style="width: 100%"></el-image>
+                    <el-image :src="`${$store.getters.getUser.name}${goods.goodsImage}`" :preview-src-list="[`http://192.168.216.164:8080/static/${goods.goodsImage}`]" style="width: 100%"></el-image>
                 </div>
                 <div style="flex: 1;padding:15px 0 15px 80px;">
                     <div class="item1" style="font-size: 24px;font-weight:bold">{{goods.goodsTitle}}</div>
@@ -16,7 +16,7 @@
                         <a>{{"\xa0\xa0\xa0"}}件</a>
                     </div>
                     <div class="item1" style="margin-top: 40px">
-                        <el-button size="medium" class="det-but" style=""><i class="el-icon-wallet">直接购买</i></el-button>
+                        <el-button size="medium" class="det-but" style=""><i class="el-icon-wallet" v-on:click="outrightPurchase">直接购买</i></el-button>
                         <el-button size="medium" class="det-but" style=""><i class="el-icon-shopping-cart-2" v-on:click="addCart">加入购物车</i></el-button>
                     </div>
                 </div>
@@ -52,9 +52,11 @@
                     goodsId: this.$route.query.id
                 }
                 console.log("该商品的id为："+ data.goodsId)
-                personReq.goodsDetail(data).then((res)=>{
+                personReq.goodsDetail(this.$route.query.id).then((res)=>{
                     console.log(res)
-                    if(res.state === 200){
+                    if(res.code === 200){
+                        // res.data.goodsImage = res.data.goodsId+res.data.goodsImage
+                        console.log(res.data.goodsImage)
                         this.goods = res.data
                     }else{
                         this.$message.error("后端获取参数失败");
@@ -63,6 +65,33 @@
             },
             handleChange(){
                 console.log("加购数量："+this.form.num)
+            },
+            outrightPurchase(){
+                if(!this.user){
+                    this.$message.warning("请登录后操作");
+                }else{
+                    let data = {
+                        totalPrice:this.goods.goodsPrice*this.form.num,
+                        goods:[]
+                    }
+                    console.log("???"+this.goods.goodsPrice)
+                    data.goods.push({
+                        totalPrice: this.totalPrice,
+                        goodId:this.$route.query.id,
+                        goodsImage:this.goods.goodsImage,
+                        goodsTitle:this.goods.goodsTitle,
+                        sumPrice: this.goods.goodsPrice*this.form.num,
+                        cartNum: this.form.num})
+                    console.log(data)
+                    this.$router.push({
+                        // 跳转到的页面路径
+                        path: '/home/confirmOrder',
+                        // 传递的参数集合
+                        query: {
+                            row: JSON.stringify(data)
+                        }
+                    })
+                }
             },
             addCart(){
                 if(!this.user){
@@ -75,7 +104,7 @@
                     }
                     personReq.addCart(data).then((res)=>{
                         console.log(res)
-                        if(res.state === 200){
+                        if(res.code === 200){
                             this.$message.success('添加成功')
                         }else{
                             this.$message.error("后台出现故障");

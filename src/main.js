@@ -13,6 +13,7 @@ import Vuex from 'vuex'
 import './api/mock'
 import qs from 'qs'      //引入qs
 import * as echarts from 'echarts';
+import ZkTable from 'vue-table-with-tree-grid'
 
 // import VueI18n from 'vue-i18n'
 // 统一导入el-icon图标
@@ -36,4 +37,5 @@ app.use(router)
     .use(store)
     .use(ElementPlus)
     .use(Vuex)
+    .use(ZkTable)
     .mount('#app')

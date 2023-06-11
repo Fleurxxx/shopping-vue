@@ -1,5 +1,30 @@
 <template>
     <div class="manage">
+        <el-dialog
+                v-model="dialogVisible"
+                title="修改该用户资料"
+                width="40%"
+                :before-close="closeDialog">
+            <el-form :inline="true" :model="form" :rules="rules" ref="form" label-width="90px" >
+                <el-form-item label="昵称" prop="username">
+                    <el-input placeholder="请输入昵称" v-model="form.username"></el-input>
+                </el-form-item>
+                <el-form-item label="手机号" prop="phone">
+                    <el-input placeholder="请输入手机号" v-model="form.phone"></el-input>
+                </el-form-item>
+                <el-form-item label="账号状态" prop="state" :required="true" style="text-align:left">
+                    <el-select v-model="form.state" placeholder="账号状态">
+                        <el-option label="正常" :value="0"></el-option>
+                        <el-option label="会员" :value="1"></el-option>
+                        <el-option label="封号" :value="2"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="closeDialog">取 消</el-button>
+                <el-button type="primary" @click="submit">确 定</el-button>
+            </div>
+        </el-dialog>
         <div class="manage-header">
             <!-- 搜索框 -->
             <div class="search">
@@ -20,47 +45,47 @@
 <!--                                 type="selection"-->
 <!--                                 :selectable="selected">-->
 <!--                </el-table-column>-->
-                <el-table-column prop="username" label="昵称" >
+                <el-table-column prop="username" align="center" label="昵称" >
                 </el-table-column>
-                <el-table-column prop="phone" label="手机号">
+                <el-table-column prop="phone" align="center" label="手机号">
                 </el-table-column>
 <!--                <el-table-column prop="level" label="会员级别">-->
 <!--                </el-table-column>-->
-                <el-table-column prop="state" label="账号状态">
+                <el-table-column prop="state" align="center" label="账号状态">
                 </el-table-column>
-                <el-table-column prop="modifiedTime" label="登录时间">
+                <el-table-column prop="modifiedTime" align="center" label="登录时间">
                 </el-table-column>
-                <el-table-column prop="createdTime" label="注册时间">
+                <el-table-column prop="createdTime" align="center" label="注册时间">
                 </el-table-column>
                 <!-- 自定义列 -->
-                <el-table-column label="操作">
+                <el-table-column label="操作" align="center">
                     <template #default="scope" >
-                        <el-button type="primary" @click="handleEdit()">编辑</el-button>
-                        <el-button type="danger" @click="handleDelete()">删除</el-button>
+                        <el-button type="primary" @click="handleEdit(scope.row)">编辑</el-button>
+                        <el-button type="danger" @click="handleDelete(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
-            <p v-if="selected !== null">
-                当前操作为：{{ selected ? "选中行" : "取消选中" }}
-            </p>
-            <!-- 分页 -->
-            <div class="pager">
-                <el-pagination layout="prev, pager, next" :total="total" @current-change="currentChange">
-                </el-pagination>
-            </div>
-<!--            购物车那里偷的分页-->
-            <div style="padding: 10px 0;">
-                <el-pagination
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
-                    :current-page="pageNum"
-                    :page-sizes="[2,5,10,20]"
-                    :page-size="pageSize"
-                    layout="total, sizes, prev, pager, next, jumper"
-                    :total="total"
-                    ></el-pagination>
-            </div>
         </div>
+        <!-- 分页 -->
+        <div class="pager">
+            <el-pagination  background
+                            layout="prev, pager, next"
+                            :page-size="5"
+                            :total="total"
+                            @current-change="handlePage"/>
+        </div>
+        <!--            购物车那里偷的分页-->
+        <!--            <div style="padding: 10px 0;">-->
+        <!--                <el-pagination-->
+        <!--                    @size-change="handleSizeChange"-->
+        <!--                    @current-change="handleCurrentChange"-->
+        <!--                    :current-page="pageNum"-->
+        <!--                    :page-sizes="[2,5,10,20]"-->
+        <!--                    :page-size="pageSize"-->
+        <!--                    layout="total, sizes, prev, pager, next, jumper"-->
+        <!--                    :total="total"-->
+        <!--                    ></el-pagination>-->
+        <!--            </div>-->
     </div>
 </template>
 
@@ -80,8 +105,8 @@
                 // 表单是否打开
                 dialogVisible: false,
                 form: {
-                    img:'',
-                    name: '',
+                    uid:'',
+                    username: '',
                     phone: '',
                     level: '',
                     state: '',
@@ -116,12 +141,33 @@
             this.getUserList();
         },
         methods: {
+            search(){
+                this.getUserList();
+            },
             getUserList(){
-                personReq.getUser().then((res) => {
+                let data = {
+                    page : this.pageData.page,
+                    limit : 12,
+                    key : this.searchForm.name
+                }
+                personReq.getUser(data).then((res) => {
                     console.log(res)
-                    this.tableData = res.data
-                    console.log(this.tableData.length)
-                    this.total = this.tableData.length || 0
+                    for(var i=0; i<res.data.records.length; i++){
+                        if(res.data.records[i].state === 0){
+                            res.data.records[i].state = '普通用户'
+                        }else if(res.data.records[i].state === 1){
+                            res.data.records[i].state = '会员用户'
+                        }else if(res.data.records[i].state === 2){
+                            res.data.records[i].state = '已封号'
+                        }else if(res.data.records[i].state === 3){
+                            res.data.records[i].state = '已注销'
+                        }
+                        res.data.records[i].modifiedTime = '2023-06-01 12:03:08'
+                        res.data.records[i].createdTime = '2023-01-01 10:38:24'
+                    }
+                    this.tableData = res.data.records
+                    console.log(res.data)
+                    this.total = res.data.total || 0
                 }).catch(err => console.log(err))
             },
             select(rows, row) {
@@ -135,6 +181,53 @@
                 // 后关闭
                 this.dialogVisible = false
             },
+            submit(){
+                // 要用箭头函数,若用function会报错,不知道为什么
+                this.$refs.form.validate((valid) => {
+                    // 符合校验
+                    if (valid) {
+                        console.log(this.form.state)
+                        if(this.form.state==='普通用户'){
+                            this.form.state=0
+                        } else if(this.form.state==='会员用户'){
+                            this.form.state=1
+                        } else if(this.form.state==='已封号'){
+                            this.form.state=2
+                        } else if(this.form.state==='已注销'){
+                            this.form.state=3
+                        }
+                        let formData = {
+                            uid:this.form.uid,
+                            username:this.form.username,
+                            phone:this.form.phone,
+                            state:this.form.state
+                        }
+                        console.log(formData)
+                        // 修改信息
+                        personReq.updateUser(formData).then((res) => {
+                            console.log(res)
+                            if (res.code === 200) {
+                                this.getUserList()
+                                this.$message.success('信息修改成功')
+                            } else {
+                                if(res.message===null){
+                                    this.$message.error("信息修改失败")
+                                }else{
+                                    this.$message.error(res.message)
+                                }
+                            }
+                        }).catch(err => console.log(err))
+                        // 清空,关闭
+                        this.closeDialog()
+                    }
+                })
+            },
+            //当前页数
+            handlePage(val){
+                console.log(val)
+                this.pageData.page = val
+                this.getUserList()
+            },
             // 改变页码
             currentChange(val) {
                 this.pageData.page = val
@@ -144,28 +237,39 @@
             openForm() {
                 this.dialogVisible = true
             },
+            // 创建按钮
+            handlecreate() {
+                this.modalType = 0
+                this.openForm()
+            },
             // 编辑按钮
             handleEdit(index) {
                 this.modalType = 1
+                this.form.uid = index.uid
+                this.form.username = index.username
+                this.form.phone = index.phone
+                this.form.state = index.state
                 this.openForm()
-                // 深拷贝
-                this.form = JSON.parse(JSON.stringify(index))
             },
             // 删除按钮
             handleDelete(index) {
+                let data={
+                    uid:index.uid
+                }
                 this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    // 删除操作:根据后端接口,参数是对象,id是唯一标识符
-                    deleteUser({ id: index.id }).then(() => {
+                    // 删除操作:根据后端接口,参数是对象,id是唯一标识符{
+                    personReq.deleteUser(data).then((res) => {
+                        console.log(res)
                         this.$message({
                             type: 'success',
                             message: '删除成功!'
                         })
-                        this.getList()
-                    });
+                        this.getUserList();
+                    }).catch(err => console.log(err))
                 }).catch(() => {
                     // 点击取消:不删除了
                     this.$message({
@@ -174,14 +278,6 @@
                     });
                 });
             },
-            search(){
-                personReq.searchUser().then((res) => {
-                    console.log(res)
-                    this.tableData = res.data
-                    console.log(this.tableData.length)
-                    this.total = this.tableData.length || 0
-                }).catch(err => console.log(err))
-            }
         }
 
     }
@@ -215,5 +311,10 @@
     }
     /deep/.el-table .cell{
         padding: 0;
+    }
+    .pager{
+        padding-left: 420px;
+        padding-top: 30px;
+        padding-bottom: 0px;
     }
 </style>
