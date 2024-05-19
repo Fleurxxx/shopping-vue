@@ -1,4 +1,6 @@
-# shopping-vue1
+# shopping-vue
+
+仿淘宝商城
 
 ## Project setup
 ```
